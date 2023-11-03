@@ -4,7 +4,6 @@ import com.epam.rd.autotask.stream.intermediate.model.Genre;
 import com.epam.rd.autotask.stream.intermediate.model.Movie;
 import com.epam.rd.autotask.stream.intermediate.model.Person;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,12 +55,12 @@ public class MovieQueries {
     }
 
     public String[] movieTitlesWrittenBy(Person person) {
-
-        return (String[]) movies.stream()
-                .flatMap(movie -> movie.getWriters().stream())
-                .filter(p -> p.equals(person))
-                .map(String::valueOf)
+        Object[] array = movies.stream()
+                .filter(movie -> movie.getWriters().stream()
+                        .anyMatch(writer -> writer.getName().equals(person.getName())))
+                .map(Movie::getTitle)
                 .toArray();
+        return (String[]) array;
     }
 
     public List<Integer> listOfLength() {
@@ -95,12 +94,12 @@ public class MovieQueries {
     }
 
     public List<Movie> sortedListOfMoviesBasedOnTheDateOfBirthOfOldestDirectorsOfMovies() {
-        List<Movie> list = new ArrayList<>();
-        for (Movie movie : movies) {
-            movie.getWriters().sort(Comparator.comparing(Person::getDateOfBirth));
-            list.add(movie);
-        }
-        return list;
+        return movies.stream()
+                .sorted(Comparator.comparing(movie -> movie.getDirectors().stream()
+                        .map(Person::getDateOfBirth)
+                        .min(Comparator.naturalOrder())
+                        .orElse(null)))
+                .collect(Collectors.toList());
     }
 
     public List<Movie> moviesReleasedEarlierThan(int releaseYear) {
