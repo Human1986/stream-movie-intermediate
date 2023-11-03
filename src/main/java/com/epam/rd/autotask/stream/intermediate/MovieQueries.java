@@ -56,12 +56,12 @@ public class MovieQueries {
     }
 
     public String[] movieTitlesWrittenBy(Person person) {
-        List<Person> people = movies.stream()
+
+        return (String[]) movies.stream()
                 .flatMap(movie -> movie.getWriters().stream())
                 .filter(p -> p.equals(person))
-                .collect(Collectors.toList());
-        String[] persons = new String[people.size()];
-        return people.toArray(persons);
+                .map(String::valueOf)
+                .toArray();
     }
 
     public List<Integer> listOfLength() {
